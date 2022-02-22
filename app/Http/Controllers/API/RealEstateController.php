@@ -110,8 +110,8 @@ class RealEstateController extends Controller
             'name' => 'required|string|max:128',
             'real_state_type' => 'required|string|in:house,department,land,commercial_ground',
             'street' => 'required|max:128',
-            'external_number' => 'required|regex:/^[A-Za-z0-9_]+$/|max:12',
-            'internal_number' => 'required_if:real_state_type,department,commercial_ground',
+            'external_number' => 'required|regex:/^[A-Za-z0-9-]+$/|max:12',
+            'internal_number' => 'required_if:real_state_type,department,commercial_ground|regex:/^[A-Za-z0-9-\s]+$/',
             'neighborhood' => 'required|string|max:128',
             'city' => 'required|string|max:64',
             'country' => ['required', new Iso3166Alpha2()],
@@ -145,7 +145,8 @@ class RealEstateController extends Controller
             
             return response()->json([
                 'status' => true,
-                'message' => 'Real estate entity updated successfully'
+                'message' => 'Real estate entity updated successfully',
+                'data'    => $realEstateEntity
             ], 200);
         }
         else
@@ -165,10 +166,12 @@ class RealEstateController extends Controller
     public function delete($id)
     {
         if (RealEstateEntity::where('id', $id)->exists()) {
-            RealEstateEntity::find($id)->delete();
+            $realEstateEntity = RealEstateEntity::find($id);
+            $realEstateEntity->delete();
             return response()->json([
                 'status' => false,
-                'message' => 'Real estate entity deleted successfully'
+                'message' => 'Real estate entity deleted successfully',
+                'data' => $realEstateEntity
             ], 200);
         }
         else
